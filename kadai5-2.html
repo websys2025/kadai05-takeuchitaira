@@ -4,17 +4,39 @@
     <title>演習課題5-2：外部APIの呼び出しテスト</title>
 </head>
 <body>
-    <h1 id="msg">何かのAPI</h1>
+    <h1 id="msg">ユーザー情報取得API</h1>
     <form name="apiform"><p>
-        何かのフォーム：<input type="text" name="form_data">
+        ユーザーID（1～10）：<input type="text" name="form_data">
         <button type="button" id="btn1" onclick="some_api(this.form)">実行</button>
     </p></form>
     
     <div id="result"></div>
+
     <script>
         async function some_api(myForm) {
-            // ここにコードを書く
-            document.getElementById("result").innerHTML += myForm.form_data.value+"<br />";
+            const userId = myForm.form_data.value;
+            const endpoint = `https://jsonplaceholder.typicode.com/users/${userId}`;
+            
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) {
+                    throw new Error("ユーザーが見つかりません");
+                }
+                const data = await response.json();
+
+                document.getElementById("result").innerHTML = `
+                    <h2>ユーザー情報</h2>
+                    <ul>
+                        <li><strong>名前:</strong> ${data.name}</li>
+                        <li><strong>ユーザー名:</strong> ${data.username}</li>
+                        <li><strong>メール:</strong> ${data.email}</li>
+                        <li><strong>住所:</strong> ${data.address.city}, ${data.address.street}</li>
+                    </ul>
+                `;
+            } catch (error) {
+                document.getElementById("result").innerHTML = `<p style="color:red;">エラー: ${error.message}</p>`;
+            }
+
             document.apiform.reset();
         }
     </script>
